@@ -41,7 +41,6 @@ class AuthenticationController extends Controller
             return response()->json([
                 'message' => 'Berhasil Login',
                 'token' => $token,
-                'user' => $findEmail
             ]);
         }
     }

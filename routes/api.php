@@ -19,6 +19,7 @@ Route::group(['prefix' => 'v1'],function(){
         Route::controller(JurnalController::class)->group(function(){
             Route::post('jurnals','createJurnals');
             Route::get('jurnals','getAllJurnals');
+            Route::get('jurnals/users','getJurnalUser');
             Route::get('jurnals/{id}','getJurnalsById');
         });
     });

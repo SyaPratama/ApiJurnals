@@ -21,7 +21,8 @@ class JurnalFactory extends Factory
             //
             'title' => fake()->slug(),
             'content' => fake()->realText(500),
-            'users_id' => User::all()->random()->id
+            'users_id' => User::all()->random()->id,
+            'date' => fake()->unique()->date('Y-m-d')
         ];
     }
 }

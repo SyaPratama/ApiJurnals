@@ -11,6 +11,7 @@ class Jurnal extends Model
     protected $fillable = [
         'title',
         'content',
+        'date',
         'users_id'
     ];
 }
