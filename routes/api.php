@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\AuthenticationController;
 use App\Http\Controllers\Api\JurnalController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
