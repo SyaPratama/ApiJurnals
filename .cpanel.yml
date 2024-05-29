@@ -1,0 +1,5 @@
+---
+deployment:
+ tasks:
+ - export DEPLOYPATH=/home/ndamelwe/subdomains/ndamelweb.com/apijurnal.ndamelweb.com
+ - /usr/bin/rsync -Paz * $DEPLOYPATH --delete
