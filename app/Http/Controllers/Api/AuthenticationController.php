@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Kelas;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -50,17 +51,29 @@ class AuthenticationController extends Controller
         $validation = Validator::make($request->all(), [
             'name' => 'required|min:5',
             'email' => 'required|email|min:5|unique:users,email',
-            'password' => 'required|min:5'
+            'password' => 'required|min:5',
+            'kelas' => 'required'
         ]);
 
         if ($validation->fails()) {
             return response($validation->errors(), 400);
         }
 
+        $kelas = Kelas::all();
+
+        if(count($kelas) === 0) return response(['message' => 'Table Kelas Masih Kosong!'],404);
+
+        $findKelas = Kelas::where('name',$request->kelas)->first();
+
+        if($findKelas === null)return response(['message' => 'Kelas Tidak Ada!']);
+
+        $addKelas = Kelas::where('name',$request->kelas)->first();
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'kelas_id' => $addKelas->id
         ]);
 
         return response([
@@ -85,7 +98,6 @@ class AuthenticationController extends Controller
             $arrUser = [];
 
             foreach ($user as $val) {
-
                 array_push($arrUser, [
                     'id' => $val->id,
                     'name' => $val->name,

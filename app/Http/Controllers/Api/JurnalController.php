@@ -4,32 +4,67 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Jurnal;
+use App\Models\Kelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use PHPUnit\Framework\Constraint\Count;
+use Revolution\Google\Sheets\Facades\Sheets;
 
 class JurnalController extends Controller
 {
     public function createJurnals(Request $request){
         $validator = Validator::make($request->all(),[
-            'title' => 'required|min:5|unique:jurnals,title',
+            'title' => 'required|min:5',
             'content' => 'required|min:10',
-            'date' => 'required|date:Y-m-d|unique:jurnals,date'
         ]);
 
         if($validator->fails()){
             return $validator->errors();
         }
 
+        date_default_timezone_set('Asia/Jakarta');
+
+        $date_now = date('Y-m-d');
+
+        $userNow = Jurnal::where('users_id',$request->user()->id)->get();
+
+        $filter = collect($userNow)->filter(function($val) use ($date_now){
+            return $val->date === $date_now;
+        })->all();
+
+        if(count($filter) > 0)return response(['message' => 'Anda Sudah Mengisi Jurnal!'],400);
 
         $jurnals = Jurnal::create([
             'title' => $request->title,
             'content' => $request->content,
             'users_id' => $request->user()->id,
-            'date' => $request->date
+            'date' => $date_now
         ]);
 
-        return response(['message' => "Berhasil Membuat Jurnals",'data' => $jurnals],201);
+        $num = Sheets::spreadsheet(config('google.post_spreadsheet_id'))->range('A:A')->all();
+
+        foreach($num as $val){
+           if($val[0] !== 'No'){
+            $count = intval($val[0]) + 1;
+           }else{
+            $count = 1;
+           }
+        }
+
+        $userKelas = $request->user()->kelas_id;
+
+        $kelas = Kelas::find($userKelas);
+
+        Sheets::spreadsheet(config('google.post_spreadsheet_id'))
+              ->sheet($kelas->name)
+              ->append([[
+                'No' => $count,
+                'Tanggal' => $date_now,
+                'Jenis Kegiatan' => $request->title,
+                'Keterangan' => $request->content,
+                'Siswa' => $request->user()->name,
+            ]]);
+
+       return response(['message' => "Berhasil Membuat Jurnals",'data' => $jurnals],201);
     }
 
     public function getAllJurnals(){
