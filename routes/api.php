@@ -21,7 +21,6 @@ Route::group(['prefix' => 'v1'],function(){
         Route::get('users',[AuthenticationController::class,'getUserLogged']);
 
         Route::controller(KelasController::class)->group(function(){
-            Route::post('kelas','addKelas');
             Route::get('kelas','getKelas');
             Route::get('kelas/users','getKelasByUser');
         });
